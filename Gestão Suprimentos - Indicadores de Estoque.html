@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<!-- saved from url=(0034)http://127.0.0.1:5500/pagina2.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão Suprimentos - Indicadores de Estoque</title>
+  <script src="./Gestão Suprimentos - Indicadores de Estoque_files/chart.js.download"></script>
+  <style>
+    body {
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+    canvas {
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 90%; /* Ajuste de largura */
+      max-width: 600px; /* Limitando a largura máxima */
+      height: auto;
+      background-color: white; /* Fundo branco para destaque */
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gestão Suprimentos - Indicadores de Estoque</h1>
+  <div class="container">
+    <canvas id="estoqueComprador" height="222" style="display: block; box-sizing: border-box; height: 278px; width: 600px;" width="480"></canvas>
+    <canvas id="acimaEstoqueComprador" height="222" width="480" style="display: block; box-sizing: border-box; height: 278px; width: 600px;"></canvas>
+    <canvas id="estoqueProduto" height="222" width="480" style="display: block; box-sizing: border-box; height: 278px; width: 600px;"></canvas>
+    <canvas id="acimaEstoqueProduto" height="222" width="480" style="display: block; box-sizing: border-box; height: 278px; width: 600px;"></canvas>
+  </div>
+
+  <script>
+    // Dados
+    const dados = [
+      { comprador: 'RODRIGO', descricao: 'EQUIPAMENTOS DE PROTECAO', estoque: 32622.5, acimaEstMin: 3464.26, semEstMin: 2812.37 },
+      { comprador: 'ROSENVALDO', descricao: 'HIDRAULICA', estoque: 63255.60, acimaEstMin: 6003.38, semEstMin: 43469.23 },
+      { comprador: 'ROSENVALDO', descricao: 'ELETRICA', estoque: 57182.84, acimaEstMin: 2771.59, semEstMin: 34120.00 },
+      { comprador: 'RODRIGO', descricao: 'PAPELARIA E MAT. ESCRITORIO', estoque: 63080.11, acimaEstMin: 28299.82, semEstMin: 5662.46 },
+      { comprador: 'STEFFEN', descricao: 'HORTIFRUTIGRANJEIROS', estoque: 356.10, acimaEstMin: 36.80, semEstMin: 283.90 },
+      { comprador: 'ROSENVALDO', descricao: 'RECUPERACOES E REFORMAS', estoque: 47060.00, acimaEstMin: 5856.95, semEstMin: 20073.87 },
+      { comprador: 'RODRIGO', descricao: 'MATERIAL ESPORTIVO', estoque: 31145.13, acimaEstMin: 5081.05, semEstMin: 9828.15 },
+      { comprador: 'ROSENVALDO', descricao: 'FERRAMENTAS/MAQ. E EQUIPTS', estoque: 11556.62, acimaEstMin: 452.51, semEstMin: 3581.08 },
+      { comprador: 'RODRIGO', descricao: 'LIMPEZA', estoque: 23691.81, acimaEstMin: 2550.15, semEstMin: 2133.00 },
+      { comprador: 'ROSENVALDO', descricao: 'PINTURA', estoque: 5760.45, acimaEstMin: 902.58, semEstMin: 1118.35 },
+      { comprador: 'ROSENVALDO', descricao: 'SOUVENIRS E UTILIDADES', estoque: 26992.45, acimaEstMin: 0.00, semEstMin: 26991.33 },
+      { comprador: 'RODRIGO', descricao: 'QUIMICOS', estoque: 15118.63, acimaEstMin: 502.52, semEstMin: 4099.36 },
+      { comprador: 'STEFFEN', descricao: 'SECOS E MOLHADOS', estoque: 20710.54, acimaEstMin: 1906.78, semEstMin: 1662.53 },
+      { comprador: 'RODRIGO', descricao: 'MATERIAL CONSERVACAO', estoque: 2289.76, acimaEstMin: 167.88, semEstMin: 824.30 },
+      { comprador: 'STEFFEN', descricao: 'MATERIAL P/USO E CONSUMO', estoque: 819.38, acimaEstMin: 0.00, semEstMin: 150.00 },
+      { comprador: 'ROSENVALDO', descricao: 'SERRALHERIA', estoque: 2946.56, acimaEstMin: 376.62, semEstMin: 1219.78 },
+      { comprador: 'STEFFEN', descricao: 'COPA E COZINHA', estoque: 28561.24, acimaEstMin: 9425.99, semEstMin: 2934.42 },
+      { comprador: 'RODRIGO', descricao: 'UNIFORMES FUNCS EM GERAL', estoque: 61788.82, acimaEstMin: 0.00, semEstMin: 60751.05 },
+      { comprador: 'STEFFEN', descricao: 'REFRIGERANTES E SUCOS', estoque: 5885.26, acimaEstMin: 862.14, semEstMin: 52.80 },
+      { comprador: 'STEFFEN', descricao: 'VINHO', estoque: 12153.70, acimaEstMin: 1032.64, semEstMin: 6246.76 },
+      { comprador: 'ROSENVALDO', descricao: 'MOVEIS E UTENSILIOS', estoque: 0.00, acimaEstMin: 0.00, semEstMin: 0.00 },
+      { comprador: 'STEFFEN', descricao: 'DOSES', estoque: 3814.59, acimaEstMin: 522.66, semEstMin: 8.83 },
+      { comprador: 'ROSENVALDO', descricao: 'MARCENARIA', estoque: 335.70, acimaEstMin: 0.00, semEstMin: 335.70 },
+      { comprador: 'STEFFEN', descricao: 'FRIOS', estoque: 13295.88, acimaEstMin: 1292.19, semEstMin: 1585.31 },
+      { comprador: 'STEFFEN', descricao: 'BEBIDAS ALCOOLICAS', estoque: 1795.17, acimaEstMin: 575.28, semEstMin: 0.00 },
+      { comprador: 'STEFFEN', descricao: 'CARNE BOVINA', estoque: 10328.53, acimaEstMin: 230.76, semEstMin: 0.00 },
+      { comprador: 'RODRIGO', descricao: 'ROUPARIA E UNIFORMES', estoque: 3693.57, acimaEstMin: 0.00, semEstMin: 3693.35 },
+      { comprador: 'STEFFEN', descricao: 'CARNE SUINA', estoque: 2581.35, acimaEstMin: 1284.88, semEstMin: 0.00 },
+      { comprador: 'RODRIGO', descricao: 'ADUBOS/DEFENSIVOS/VETERINÁRIOS', estoque: 4675.51, acimaEstMin: 963.04, semEstMin: 180.00 },
+      { comprador: 'STEFFEN', descricao: 'CERVEJAS', estoque: 27650.35, acimaEstMin: 10503.00, semEstMin: 8532.24 },
+      { comprador: 'RODRIGO', descricao: 'HIGIENE', estoque: 9803.30, acimaEstMin: 530.00, semEstMin: 0.00 },
+      { comprador: 'STEFFEN', descricao: 'CARNE PEIXE', estoque: 5688.87, acimaEstMin: 1218.20, semEstMin: 0.00 },
+      { comprador: 'RODRIGO', descricao: 'SERVIÇOS DE IMPRESSÃO', estoque: 18522.56, acimaEstMin: 1950.00, semEstMin: 950.00 }
+      // Adicione os outros dados aqui...
+    ];
+
+    // Organizando os dados
+    const compradores = [];
+    const estoqueComprador = [];
+    const estoqueProduto = {};
+    const acimaEstoqueComprador = [];
+    const acimaEstoqueProduto = {};
+
+    dados.forEach(item => {
+      // Estoque por comprador
+      if (!compradores.includes(item.comprador)) {
+        compradores.push(item.comprador);
+        estoqueComprador.push(item.estoque);
+        acimaEstoqueComprador.push(item.acimaEstMin);
+      } else {
+        const index = compradores.indexOf(item.comprador);
+        estoqueComprador[index] += item.estoque;
+        acimaEstoqueComprador[index] += item.acimaEstMin;
+      }
+
+      // Estoque por produto
+      if (!estoqueProduto[item.descricao]) {
+        estoqueProduto[item.descricao] = item.estoque;
+        acimaEstoqueProduto[item.descricao] = item.acimaEstMin;
+      } else {
+        estoqueProduto[item.descricao] += item.estoque;
+        acimaEstoqueProduto[item.descricao] += item.acimaEstMin;
+      }
+    });
+
+    // Gráfico Estoque por Comprador
+    new Chart(document.getElementById('estoqueComprador'), {
+      type: 'bar',
+      data: {
+        labels: compradores,
+        datasets: [{
+          label: 'Estoque por Comprador',
+          backgroundColor: 'rgba(54, 162, 235, 0.7)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1,
+          data: estoqueComprador
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Estoque por Comprador',
+            color: '#333',
+            font: {
+              size: 18,
+              weight: 'bold'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': R$ ' + context.raw.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Gráfico Acima do Estoque Mínimo por Comprador
+    new Chart(document.getElementById('acimaEstoqueComprador'), {
+      type: 'bar',
+      data: {
+        labels: compradores,
+        datasets: [{
+          label: 'Acima do Estoque Mínimo por Comprador',
+          backgroundColor: 'rgba(75, 192, 192, 0.7)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+          data: acimaEstoqueComprador
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Acima do Estoque Mínimo por Comprador',
+            color: '#333',
+            font: {
+              size: 18,
+              weight: 'bold'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': R$ ' + context.raw.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Gráfico Estoque por Produto
+    new Chart(document.getElementById('estoqueProduto'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(estoqueProduto),
+        datasets: [{
+          label: 'Estoque por Produto',
+          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1,
+          data: Object.values(estoqueProduto)
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Estoque por Produto',
+            color: '#333',
+            font: {
+              size: 18,
+              weight: 'bold'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': R$ ' + context.raw.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Gráfico Acima do Estoque Mínimo por Produto
+    new Chart(document.getElementById('acimaEstoqueProduto'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(acimaEstoqueProduto),
+        datasets: [{
+          label: 'Acima do Estoque Mínimo por Produto',
+          backgroundColor: 'rgba(153, 102, 255, 0.7)',
+          borderColor: 'rgba(153, 102, 255, 1)',
+          borderWidth: 1,
+          data: Object.values(acimaEstoqueProduto)
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Acima do Estoque Mínimo por Produto',
+            color: '#333',
+            font: {
+              size: 18,
+              weight: 'bold'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': R$ ' + context.raw.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+
+</body></html>
